@@ -5,38 +5,49 @@
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  previewFeatures = ["multiSchema"]
 }
 
 datasource db {
   provider = "sqlserver"
   url      = env("DATABASE_URL")
+  schemas  = ["user_management"]
 }
 
 model Pictures {
-  id         Int      @id @default(autoincrement())
-  path       String
-  key        String
-  type       String
-  createdAt  DateTime @default(now())
+  id           Int            @id @default(autoincrement())
+  path         String         @map("path")
+  key          String         @map("key")
+  type         String         @map("type")
+  createdAt    DateTime       @default(now()) @map("created_at")
   userPictures UserPictures[]
+
+  @@map("pictures")
+  @@schema("user_management")
 }
 
 model UserPictures {
   id        Int      @id @default(autoincrement())
-  userId    Int
-  pictureId Int
-  createdAt DateTime @default(now())
+  userId    Int      @map("user_id")
+  pictureId Int      @map("picture_id")
+  createdAt DateTime @default(now()) @map("created_at")
 
-  user      User     @relation(fields: [userId], references: [id])
-  picture   Pictures @relation(fields: [pictureId], references: [id])
+  user    User     @relation(fields: [userId], references: [id])
+  picture Pictures @relation(fields: [pictureId], references: [id])
+
+  @@map("user_pictures")
+  @@schema("user_management")
 }
 
 model User {
-  id         Int           @id @default(autoincrement())
-  email      String        @unique
-  password   String
-  createdAt  DateTime      @default(now())
-  updatedAt  DateTime      @updatedAt
+  id           Int            @id @default(autoincrement())
+  email        String         @unique @map("email")
+  password     String         @map("password")
+  createdAt    DateTime       @default(now()) @map("created_at")
+  updatedAt    DateTime       @updatedAt @map("updated_at")
   userPictures UserPictures[]
+
+  @@map("user")
+  @@schema("user_management")
 }
