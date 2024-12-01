@@ -1,10 +1,11 @@
 import { Exclude, Expose } from "@nestjs/class-transformer/types/decorators";
 
 @Exclude()
-export class UserResponseDto {
+export class AuthResponseDto {
   @Expose()
-  id: number;
+  token: string;
 
   @Expose()
-  status: string;
+  message: string;
 }
+
