@@ -1,14 +1,15 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import helmet from 'helmet';
-import { Logger, VersioningType } from '@nestjs/common';
+import { Logger } from '@nestjs/common/services';
+import { VersioningType } from '@nestjs/common/enums';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { HttpExceptionFilter } from '@middleware/http-error.middleware';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
     logger: ['error', 'warn', 'log'],
   });
-
   app.enableCors();
   app.use(helmet());
 
@@ -23,7 +24,7 @@ async function bootstrap() {
     .addTag('Quiz')
     .build();
   const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api', app, document);
+  SwaggerModule.setup('swagger', app, document);
 
   await app.listen(process.env.PORT ?? 3000);
   Logger.log(`Server running on http://localhost:${process.env.PORT ?? 3000}`, 'Bootstrap');

@@ -1,11 +1,12 @@
-import { Controller, Get, HttpStatus } from '@nestjs/common';
+import { Controller, Get } from '@nestjs/common/decorators';
+import { HttpStatus } from '@nestjs/common/enums';
 import { AppService } from './app.service';
 
 @Controller()
 export class AppController {
   constructor(private readonly appService: AppService) {}
 
-  @Get('healthcheck-service')
+  @Get('')
   getHello(): { status: number; message: string } {
     return {
       status: HttpStatus.OK,

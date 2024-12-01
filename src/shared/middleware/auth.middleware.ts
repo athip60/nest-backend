@@ -1,4 +1,6 @@
-import { Injectable, NestMiddleware, UnauthorizedException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common/decorators';
+import { NestMiddleware } from '@nestjs/common/interfaces';
+import { UnauthorizedException } from '@nestjs/common/exceptions';
 import { Request, Response, NextFunction } from 'express';
 import * as jwt from 'jsonwebtoken';
 
@@ -12,7 +14,7 @@ export class AuthMiddleware implements NestMiddleware {
 
     const token = authHeader.split(' ')[1];
     try {
-      const decoded = jwt.verify(token, 'synergy-first-init');
+      const decoded = jwt.verify(token, 'quiz-backend');
       req['user'] = decoded;
       next();
     } catch (error) {

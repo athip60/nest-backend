@@ -9,6 +9,8 @@ COPY . .
 
 RUN npx prisma generate
 
+ENV PRISMA_FORCE_DEV_ENV=true
+
 EXPOSE 3000
 
-CMD ["sh", "-c", "npx prisma migrate dev --name init && npx prisma migrate deploy && npm run start:dev"]
+CMD ["sh", "-c", "npx prisma migrate dev --create-only --name init && npm run start:dev"]
