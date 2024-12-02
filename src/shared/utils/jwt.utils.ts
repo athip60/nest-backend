@@ -1,5 +1,3 @@
-import { HttpStatus } from '@nestjs/common/enums';
-import { HttpException } from '@nestjs/common/exceptions';
 import * as jwt from 'jsonwebtoken';
 
 const secretKey = process.env.JWT_SECRET || 'quiz-backend';

@@ -10,7 +10,7 @@ export class ExternalService {
 
   async callExternalAPI(id ,externalRequest): Promise<any> {
     const url =
-      `https://71bc20a3-fa9c-4cd6-a6f3-490a8cd452bf.mock.pstmn.io/api/face-verify/${id}`;
+      `https://9c5b764f-7226-4c54-92bc-c01f84084479.mock.pstmn.io/api/face-verify/${id}`;
     const headers = {
       'Content-Type': 'application/json',
     };

@@ -1,3 +1,3 @@
 export class UploadFileResponseDto {
-  pictureId: number;
+  pictureId: BigInt;
 }

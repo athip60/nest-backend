@@ -16,7 +16,7 @@ datasource db {
 }
 
 model User {
-  id              Int               @id @default(autoincrement())
+  id              Int            @id @default(autoincrement())
   username        String            @unique @map("username") @db.VarChar(255)
   password        String            @map("password") @db.VarChar(255)
   createdAt       DateTime          @default(now()) @map("created_at")
@@ -30,10 +30,10 @@ model User {
 }
 
 model Pictures {
-  id              Int               @id @default(autoincrement())
-  path            String            @map("path") @db.VarChar(50)
+  id              BigInt            @id @default(autoincrement())
+  path            String            @map("path") @db.VarChar(10)
   key             String            @map("key")
-  type            String            @map("type") @db.VarChar(10)
+  type            String            @map("type") @db.VarChar(5)
   createdAt       DateTime          @default(now()) @map("created_at")
   userPictures    UserPictures?
   userPicturesLog UserPicturesLog[]
@@ -43,9 +43,9 @@ model Pictures {
 }
 
 model UserPictures {
-  id        Int      @id @default(autoincrement())
-  userId    Int      @unique @map("user_id")
-  pictureId Int      @unique @map("picture_id")
+  id        BigInt   @id @default(autoincrement())
+  userId    Int   @unique @map("user_id")
+  pictureId BigInt   @unique @map("picture_id")
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
@@ -58,9 +58,9 @@ model UserPictures {
 }
 
 model UserPicturesLog {
-  id        Int      @id @default(autoincrement())
-  userId    Int      @map("user_id")
-  pictureId Int      @map("picture_id")
+  id        BigInt   @id @default(autoincrement())
+  userId    Int   @map("user_id")
+  pictureId BigInt   @map("picture_id")
   createdAt DateTime @default(now()) @map("created_at")
 
   user    User     @relation(fields: [userId], references: [id])

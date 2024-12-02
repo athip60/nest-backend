@@ -16,7 +16,7 @@ export class UserService {
     private readonly prismaService: PrismaService,
     private readonly fileService: FileService,
     private readonly minioService: MinioService,
-  ) {}
+  ) { }
 
   async getUserById(req: Request): Promise<UserResponseDto> {
     const userId = req['user']['userId'];
@@ -39,15 +39,20 @@ export class UserService {
         },
       },
     });
+    if (!user) {
+      throw new HttpException(
+        'Not found',
+        HttpStatus.NOT_FOUND,
+      );
+    }
     const picture = user.userPictures?.picture;
     const pictureUrl = picture
       ? (
-          await this.minioService.getSignedUrl(
-            convertPathFile(picture.path, picture.key, picture.type),
-          )
-        ).url
+        await this.minioService.getSignedUrl(
+          convertPathFile(picture.path, picture.key, picture.type),
+        )
+      ).url
       : null;
-
     return {
       id: user.id,
       username: user.username,
@@ -56,9 +61,9 @@ export class UserService {
       isDelete: user.isDelete,
       picture: picture
         ? {
-            id: picture.id,
-            url: pictureUrl,
-          }
+          id: picture.id.toString(),
+          url: pictureUrl,
+        }
         : null,
     };
   }
@@ -84,7 +89,6 @@ export class UserService {
       // object for update
       const userUpdate: Partial<UserRequestDto & { userPictures?: any }> = {};
 
-      // map username for update
       if (request.username != undefined) {
         const dupUsername = await prisma.user.findFirst({
           where: {
@@ -104,11 +108,9 @@ export class UserService {
         }
         userUpdate.username = request.username;
       }
-      // map isDelete for update
       if (request.isDelete != undefined) {
-        userUpdate.isDelete = request.isDelete;
+        userUpdate.isDelete = Boolean(request.isDelete);
       }
-
       // map & create picture for update
       if (pictureProfile) {
         await prisma.userPicturesLog.create({
@@ -140,33 +142,28 @@ export class UserService {
 
   async hardDeleteUser(req: Request): Promise<BaseResponseObjectDto> {
     const userId = req['user']['userId'];
-    try {
-      await this.prismaService.$transaction(async (prisma) => {
-        await prisma.userPictures.delete({
-          where: {
-            id: userId,
-          },
-        });
-        await prisma.userPicturesLog.deleteMany({
-          where: {
-            id: userId,
-          },
-        });
-        await prisma.user.delete({
-          where: {
-            id: userId,
-          },
-        });
+    await this.prismaService.$transaction(async (prisma) => {
+      await prisma.userPictures.delete({
+        where: {
+          id: userId,
+        },
       });
-      return {
-        success: true,
-        message: 'Delete user successful.',
-      } as BaseResponseObjectDto;
-    } catch (error) {
-      throw new HttpException(
-        'User not found. Cannot delete.',
-        HttpStatus.NOT_FOUND,
-      );
-    }
+      await prisma.userPicturesLog.deleteMany({
+        where: {
+          id: userId,
+        },
+      });
+      await prisma.user.delete({
+        where: {
+          id: userId,
+        },
+      });
+    });
+    return {
+      success: true,
+      message: 'Delete user successful.',
+    } as BaseResponseObjectDto;
   }
 }
+
+

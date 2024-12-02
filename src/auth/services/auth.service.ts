@@ -81,7 +81,7 @@ export class AuthService {
 
       await prisma.userPictures.create({
         data: {
-          pictureId: picture.pictureId,
+          pictureId: picture.pictureId as bigint,
           userId: user.id,
         },
       });

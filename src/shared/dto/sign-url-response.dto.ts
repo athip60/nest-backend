@@ -1,4 +1,4 @@
 export class SignUrlResponseDto {
-  id?: number;
+  id?: string;
   url: string;
 }

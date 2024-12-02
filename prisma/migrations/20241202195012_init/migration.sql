@@ -19,19 +19,19 @@ CREATE TABLE [user_management].[user] (
 
 -- CreateTable
 CREATE TABLE [user_management].[pictures] (
-    [id] INT NOT NULL IDENTITY(1,1),
-    [path] VARCHAR(50) NOT NULL,
+    [id] BIGINT NOT NULL IDENTITY(1,1),
+    [path] VARCHAR(10) NOT NULL,
     [key] NVARCHAR(1000) NOT NULL,
-    [type] VARCHAR(10) NOT NULL,
+    [type] VARCHAR(5) NOT NULL,
     [created_at] DATETIME2 NOT NULL CONSTRAINT [pictures_created_at_df] DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT [pictures_pkey] PRIMARY KEY CLUSTERED ([id])
 );
 
 -- CreateTable
 CREATE TABLE [user_management].[user_pictures] (
-    [id] INT NOT NULL IDENTITY(1,1),
+    [id] BIGINT NOT NULL IDENTITY(1,1),
     [user_id] INT NOT NULL,
-    [picture_id] INT NOT NULL,
+    [picture_id] BIGINT NOT NULL,
     [created_at] DATETIME2 NOT NULL CONSTRAINT [user_pictures_created_at_df] DEFAULT CURRENT_TIMESTAMP,
     [updated_at] DATETIME2 NOT NULL,
     CONSTRAINT [user_pictures_pkey] PRIMARY KEY CLUSTERED ([id]),
@@ -42,9 +42,9 @@ CREATE TABLE [user_management].[user_pictures] (
 
 -- CreateTable
 CREATE TABLE [user_management].[user_pictures_log] (
-    [id] INT NOT NULL IDENTITY(1,1),
+    [id] BIGINT NOT NULL IDENTITY(1,1),
     [user_id] INT NOT NULL,
-    [picture_id] INT NOT NULL,
+    [picture_id] BIGINT NOT NULL,
     [created_at] DATETIME2 NOT NULL CONSTRAINT [user_pictures_log_created_at_df] DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT [user_pictures_log_pkey] PRIMARY KEY CLUSTERED ([id])
 );
