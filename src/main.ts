@@ -4,7 +4,6 @@ import helmet from 'helmet';
 import { Logger } from '@nestjs/common/services';
 import { VersioningType } from '@nestjs/common/enums';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import { HttpExceptionFilter } from '@middleware/http-error.middleware';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {

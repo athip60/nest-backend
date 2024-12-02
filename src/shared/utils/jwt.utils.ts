@@ -1,8 +1,14 @@
+import { HttpStatus } from '@nestjs/common/enums';
+import { HttpException } from '@nestjs/common/exceptions';
 import * as jwt from 'jsonwebtoken';
 
-export function generateToken(payload: any): string {
-  const secretKey = process.env.JWT_SECRET || 'quiz-backend';
-  const expiresIn = '1h';
+const secretKey = process.env.JWT_SECRET || 'quiz-backend';
 
+export async function generateToken(payload: object): Promise<string> {
+  const expiresIn = '1h';
   return jwt.sign(payload, secretKey, { expiresIn });
+}
+
+export function verifyToken(token: string): string {
+  return jwt.verify(token, 'quiz-backend');
 }

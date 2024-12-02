@@ -17,10 +17,9 @@ export class HttpExceptionFilter implements ExceptionFilter {
     const status = exception instanceof HttpException
       ? exception.getStatus()
       : HttpStatus.INTERNAL_SERVER_ERROR;
-
     const message = exception instanceof HttpException
       ? exception.getResponse()
-      : 'ระบบขัดข้อง';
+      : exception.message || 'ระบบขัดข้อง';
 
     try {
       await this.prisma.errorLog.create({

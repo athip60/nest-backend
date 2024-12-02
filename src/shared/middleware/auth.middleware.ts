@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common/decorators';
 import { NestMiddleware } from '@nestjs/common/interfaces';
 import { UnauthorizedException } from '@nestjs/common/exceptions';
 import { Request, Response, NextFunction } from 'express';
-import * as jwt from 'jsonwebtoken';
+import { verifyToken } from '../utils/jwt.utils';
 
 @Injectable()
 export class AuthMiddleware implements NestMiddleware {
@@ -14,7 +14,7 @@ export class AuthMiddleware implements NestMiddleware {
 
     const token = authHeader.split(' ')[1];
     try {
-      const decoded = jwt.verify(token, 'quiz-backend');
+      const decoded = verifyToken(token);
       req['user'] = decoded;
       next();
     } catch (error) {

@@ -1,5 +1,5 @@
 import { v4 as uuidv4 } from 'uuid';
-import { GenerateObjectDto } from "../dto/generate-object.dto";
+import { GenerateObjectDto } from '../dto/generate-object.dto';
 
 export function generateObject(file: Express.Multer.File): GenerateObjectDto {
   const currentDate = new Date();
@@ -14,6 +14,10 @@ export function generateObject(file: Express.Multer.File): GenerateObjectDto {
     key: key,
     year: year,
     month: month,
-    day: day
-  }
+    day: day,
+  };
+}
+
+export function convertPathFile(path: string, key: string, type: string): string {
+  return `${path}/${key}.${type}`;
 }

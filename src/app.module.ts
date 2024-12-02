@@ -10,9 +10,10 @@ import { PrismaService } from '@prisma/prisma.service';
 import { HttpExceptionFilter } from '@middleware/http-error.middleware';
 import { MinioModule } from './shared/minio/minio.module';
 import { FileModule } from './file/file.module';
+import { ExternalModule } from './external/external.module';
 
 @Module({
-  imports: [UserModule, AuthModule, MinioModule, FileModule],
+  imports: [UserModule, AuthModule, MinioModule, FileModule, ExternalModule],
   controllers: [AppController],
   providers: [
     AppService,

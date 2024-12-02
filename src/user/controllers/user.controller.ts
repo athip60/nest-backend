@@ -1,31 +1,44 @@
 import { UserResponseDto } from '../dto/user-response.dto';
 import { UserRequestDto } from '../dto/user-request.dto';
-import { Body, Controller, Delete, Get, Param, Patch } from '@nestjs/common/decorators';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Patch,
+  UploadedFile,
+  UseInterceptors,
+  Req
+} from '@nestjs/common/decorators';
+import { UserService } from '../services/user.service';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { BaseResponseObjectDto } from 'src/shared/dto/response.dto';
 
-@Controller('api/users')
+@Controller('api/user')
 export class UserController {
-  constructor() { }
+  constructor(readonly userService: UserService) {}
 
-  @Get()
-  async getUsers(): Promise<UserResponseDto> {
-    return {} as UserResponseDto;
-  }
-
-  @Get(':id')
-  async getUserById(@Param('id') id: string): Promise<UserResponseDto> {
-    return {} as UserResponseDto;
-  }
-
-  @Patch(':id')
-  async updateUser(
-    @Param('id') id: string,
-    @Body() request: UserRequestDto
+  @Get('me')
+  async getUserById(
+    @Req() req: Request
   ): Promise<UserResponseDto> {
-    return {} as UserResponseDto;
+    return await this.userService.getUserById(req);
   }
 
-  @Delete(':id')
-  async hardDeleteUser(@Param('id') id: string): Promise<UserResponseDto> {
-    return {} as UserResponseDto;
+  @Patch('me')
+  @UseInterceptors(FileInterceptor('file'))
+  async updateUser(
+    @Req() req: Request,
+    @Body() request: Partial<UserRequestDto>,
+    @UploadedFile() pictureProfile: Express.Multer.File,
+  ): Promise<BaseResponseObjectDto> {
+    return await this.userService.updateUser(req, request, pictureProfile);
+  }
+
+  @Delete('me')
+  async hardDeleteUser(
+    @Req() req: Request
+  ): Promise<BaseResponseObjectDto> {
+    return await this.userService.hardDeleteUser(req);
   }
 }

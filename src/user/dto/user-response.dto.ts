@@ -1,10 +1,10 @@
-import { Exclude, Expose } from "@nestjs/class-transformer/types/decorators";
+import { SignUrlResponseDto } from 'src/shared/dto/sign-url-response.dto';
 
-@Exclude()
 export class UserResponseDto {
-  @Expose()
   id: number;
-
-  @Expose()
-  status: string;
+  username: string;
+  createdAt: Date;
+  updatedAt: Date;
+  isDelete: boolean;
+  picture?: SignUrlResponseDto
 }

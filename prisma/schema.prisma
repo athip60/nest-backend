@@ -15,19 +15,49 @@ datasource db {
   schemas  = ["user_management"]
 }
 
+model User {
+  id              Int               @id @default(autoincrement())
+  username        String            @unique @map("username") @db.VarChar(255)
+  password        String            @map("password") @db.VarChar(255)
+  createdAt       DateTime          @default(now()) @map("created_at")
+  updatedAt       DateTime          @updatedAt @map("updated_at")
+  isDelete        Boolean           @default(false) @map("is_delete")
+  userPictures    UserPictures?
+  userPicturesLog UserPicturesLog[]
+
+  @@map("user")
+  @@schema("user_management")
+}
+
 model Pictures {
-  id           Int            @id @default(autoincrement())
-  path         String         @map("path") @db.VarChar(50)
-  key          String         @map("key")
-  type         String         @map("type") @db.VarChar(10)
-  createdAt    DateTime       @default(now()) @map("created_at")
-  userPictures UserPictures[]
+  id              Int               @id @default(autoincrement())
+  path            String            @map("path") @db.VarChar(50)
+  key             String            @map("key")
+  type            String            @map("type") @db.VarChar(10)
+  createdAt       DateTime          @default(now()) @map("created_at")
+  userPictures    UserPictures?
+  userPicturesLog UserPicturesLog[]
 
   @@map("pictures")
   @@schema("user_management")
 }
 
 model UserPictures {
+  id        Int      @id @default(autoincrement())
+  userId    Int      @unique @map("user_id")
+  pictureId Int      @unique @map("picture_id")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  user    User     @relation(fields: [userId], references: [id])
+  picture Pictures @relation(fields: [pictureId], references: [id])
+
+  @@unique([userId, pictureId])
+  @@map("user_pictures")
+  @@schema("user_management")
+}
+
+model UserPicturesLog {
   id        Int      @id @default(autoincrement())
   userId    Int      @map("user_id")
   pictureId Int      @map("picture_id")
@@ -36,19 +66,7 @@ model UserPictures {
   user    User     @relation(fields: [userId], references: [id])
   picture Pictures @relation(fields: [pictureId], references: [id])
 
-  @@map("user_pictures")
-  @@schema("user_management")
-}
-
-model User {
-  id           Int            @id @default(autoincrement())
-  username     String         @unique @map("username") @db.VarChar(255)
-  password     String         @map("password") @db.VarChar(255) // จำกัดความยาว
-  createdAt    DateTime       @default(now()) @map("created_at")
-  updatedAt    DateTime       @updatedAt @map("updated_at")
-  userPictures UserPictures[]
-
-  @@map("user")
+  @@map("user_pictures_log")
   @@schema("user_management")
 }
 

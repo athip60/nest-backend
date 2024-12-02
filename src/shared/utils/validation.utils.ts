@@ -1,22 +1,30 @@
-import { HttpStatus } from "@nestjs/common/enums";
-import { HttpException } from "@nestjs/common/exceptions";
+import { HttpStatus } from '@nestjs/common/enums';
+import { HttpException } from '@nestjs/common/exceptions';
+import { UserRequestDto } from 'src/user/dto/user-request.dto';
 
 export function validateRequest<T>(request: T, fieldRequest: string[]) {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  const passwordRegex = /^(?=.*[0-9])(?=.*[!@#$%^&*])(?=.*[a-zA-Z])[a-zA-Z0-9!@#$%^&*]{8,}$/;
+  const passwordRegex =
+    /^(?=.*[0-9])(?=.*[!@#$%^&*])(?=.*[a-zA-Z])[a-zA-Z0-9!@#$%^&*]{8,}$/;
   fieldRequest.forEach((field) => {
     switch (field) {
       case 'username':
         if (!request['username'] || !emailRegex.test(request['username'])) {
-          throw new HttpException('Invalid format email or missing', HttpStatus.BAD_REQUEST);
+          throw new HttpException(
+            'Invalid format email or missing',
+            HttpStatus.BAD_REQUEST,
+          );
         }
 
       case 'password':
         if (!request['password'] || !passwordRegex.test(request['password'])) {
-          throw new HttpException('Invalid or missing password', HttpStatus.BAD_REQUEST);
+          throw new HttpException(
+            'Invalid or missing password',
+            HttpStatus.BAD_REQUEST,
+          );
         }
     }
-  })
+  });
 }
 
 export function validateFilePicture(file: Express.Multer.File) {
@@ -30,5 +38,21 @@ export function validateFilePicture(file: Express.Multer.File) {
   }
   if (file.size > maxSizeInBytes) {
     throw new HttpException('File size exceeds 5MB', HttpStatus.BAD_REQUEST);
+  }
+}
+
+export function validateRequestUpdateUser(
+  request: Partial<UserRequestDto>,
+  pictureProfile: Express.Multer.File,
+) {
+  if (
+    request.username == undefined &&
+    request.isDelete == undefined &&
+    !pictureProfile
+  ) {
+    throw new HttpException(
+      'missing request for update',
+      HttpStatus.BAD_REQUEST,
+    );
   }
 }
