@@ -12,7 +12,7 @@ export class AuthReqeustDto {
     /^(?=.*[0-9])(?=.*[!@#$%^&*])(?=.*[a-zA-Z])[a-zA-Z0-9!@#$%^&*]{8,}$/,
     {
       message:
-        'Password must contain at least 8 characters, one letter, one number, and one special character',
+        'Password must contain at least 8 characters (one letter, one number, and one special character)',
     },
   )
   password: string;

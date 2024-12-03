@@ -2,7 +2,7 @@ import { HttpStatus } from '@nestjs/common/enums';
 import { HttpException } from '@nestjs/common/exceptions';
 
 export function validateFilePicture(file: Express.Multer.File) {
-  const allowedMimeTypes = ['image/jpeg', 'image/png'];
+  const allowedMimeTypes = ['image/jpg', 'image/jpeg', 'image/png'];
   const maxSizeInBytes = 5 * 1024 * 1024;
   if (!file) {
     throw new HttpException('File is required', HttpStatus.BAD_REQUEST);

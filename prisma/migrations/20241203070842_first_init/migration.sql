@@ -52,8 +52,8 @@ CREATE TABLE [user_management].[user_pictures_log] (
 -- CreateTable
 CREATE TABLE [user_management].[error_logs] (
     [id] INT NOT NULL IDENTITY(1,1),
-    [timestamp] DATETIME2 NOT NULL,
     [error_message] NVARCHAR(1000) NOT NULL,
+    [exac_message] NVARCHAR(1000) NOT NULL,
     [stack_trace] TEXT,
     [error_code] VARCHAR(50),
     [user_id] INT,

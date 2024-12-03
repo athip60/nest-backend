@@ -18,7 +18,7 @@ export class AuthService {
     private readonly prismaService: PrismaService,
     private readonly fileService: FileService,
     private readonly externalService: ExternalService,
-  ) {}
+  ) { }
 
   async signin(request: AuthReqeustDto): Promise<AuthResponseDto> {
     const user = await this.prismaService.user.findFirst({
@@ -55,16 +55,30 @@ export class AuthService {
     request: AuthReqeustDto,
     file: Express.Multer.File,
   ): Promise<AuthResponseDto> {
-    validateFilePicture(file);
-
     return await this.prismaService.$transaction(async (prisma) => {
+      if (request.username != undefined) {
+        const dupUsername = await prisma.user.findFirst({
+          where: {
+            AND: {
+              username: {
+                equals: request.username,
+              }
+            },
+          },
+        });
+        if (dupUsername) {
+          throw new HttpException(
+            'Duplicate request username',
+            HttpStatus.BAD_REQUEST,
+          );
+        }
+      }
       const user = await prisma.user.create({
         data: {
           username: request.username,
           password: await hashPassword(request.password),
         },
       });
-
       const picture: UploadFileResponseDto =
         await this.fileService.uploadPicture(file);
 
@@ -99,7 +113,7 @@ export class AuthService {
       id,
       externalRequest,
     );
-    if (serviceVerify.verifyResult) {
+    if (serviceVerify.verifyStatus) {
       return {
         success: true,
         message: 'Face authentication successful.',

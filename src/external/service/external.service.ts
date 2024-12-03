@@ -1,6 +1,5 @@
 import { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common/decorators';
-import { ConfigService } from '@nestjs/config';
 import { AxiosResponse } from 'axios';
 import { lastValueFrom } from 'rxjs';
 
@@ -10,7 +9,7 @@ export class ExternalService {
 
   async callExternalAPI(id ,externalRequest): Promise<any> {
     const url =
-      `https://9c5b764f-7226-4c54-92bc-c01f84084479.mock.pstmn.io/api/face-verify/${id}`;
+      `https://0911ae6f-f9df-4e18-ad1e-573a5e71da40.mock.pstmn.io/api/face-verify/${id}`;
     const headers = {
       'Content-Type': 'application/json',
     };

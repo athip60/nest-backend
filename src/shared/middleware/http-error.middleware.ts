@@ -25,7 +25,6 @@ export class HttpExceptionFilter implements ExceptionFilter {
     try {
       await this.prisma.errorLog.create({
         data: {
-          timestamp: new Date(),
           errorMessage: typeof message === 'string'
             ? message
             : (message as any).message || message,

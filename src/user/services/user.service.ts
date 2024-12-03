@@ -107,7 +107,7 @@ export class UserService {
         userUpdate.username = request.username;
       }
       if (request.isDelete != undefined) {
-        userUpdate.isDelete = Boolean(request.isDelete);
+        userUpdate.isDelete = request.isDelete;
       }
       // map & create picture for update
       if (pictureProfile) {

@@ -98,11 +98,12 @@
 %%     Client->>Controller: HTTP POST /signin (username, password)
 %%     Controller->>AuthService: signin(request)
 %%     AuthService->>PrismaService: user.findFirst by username
+%%     AuthService -> AuthService: Verify Password
 %%     alt User Not Found or Password Not Match
 %%         ExceptionFilter-->>Client: HTTP 400 BAD REQUEST
 %%     end
 
-%%     AuthService -> AuthService: Verify Password & Generate Token
+%%     AuthService -> AuthService: Generate Token
 %%     AuthService-->>Controller: { token, message: 'Login successful' }
 %%     Controller-->>Client: HTTP 200 OK { token, message: 'Login successful' }
 
@@ -252,7 +253,7 @@ sequenceDiagram
 %%     UserService->>FileService: Handle Picture Upload
 %%     FileService->>Minio: Validate and Upload Picture
 %%     FileService-->>UserService: Picture Details
-%%     UserService->>PrismaService: Update User with Picture Log
+%%     UserService->>PrismaService: Update userPicture and userPictureLog
 %%     UserService->>PrismaService: **Commit Transaction**
 %%     UserService-->>Controller: { message: "Update user successful" }
 %%     Controller-->>Client: HTTP 200 OK (Update user successful)
@@ -343,10 +344,10 @@ sequenceDiagram
 %%     Controller->>UserService: hardDeleteUser()
 %%     UserService->>PrismaService: **Begin Transaction**
 %%     UserService->>PrismaService: Delete user and associated records
-%%     UserService->>PrismaService: **Commit Transaction**
 %%     alt User Not Found
 %%         ExceptionFilter-->>Client: HTTP 404 NOT FOUND
 %%     end
+%%     UserService->>PrismaService: **Commit Transaction**
 %%     UserService-->>Controller: { message: "Delete user successful." }
 %%     Controller-->>Client: HTTP 200 OK (Delete user successful.)
 
@@ -424,14 +425,16 @@ sequenceDiagram
 %%     end
 
 %%     AuthService->>FaceVerify: POST: api/face-verify/ (file)
-%%     FaceVerify->>FaceVerifyFunction: Preprocessing (Rescale, Grayscale)
-%%     FaceVerifyFunction-->>FaceVerify: Return Preprocessed Image
-%%     FaceVerify->>FaceVerifyFunction: Face Detection (OpenCV)
-%%     FaceVerifyFunction-->>FaceVerify: Face Detected
-%%     FaceVerify->>FaceVerifyFunction: Feature Extraction (DeepFace)
-%%     FaceVerifyFunction-->>FaceVerify: Extracted Features
-%%     FaceVerify->>FaceVerifyFunction: Comparison (Similarity Score)
-%%     FaceVerifyFunction-->>FaceVerify: Similarity Result
+%%     FaceVerify->>FaceVerifyFunction: Security: Check image is real face
+%%     FaceVerifyFunction-->>FaceVerify: Return result check
+%%     FaceVerify->>FaceVerifyFunction: Preprocessing: Image preparation
+%%     FaceVerifyFunction-->>FaceVerify: Return reprocessed image
+%%     FaceVerify->>FaceVerifyFunction: Feature Extraction: Use model for detect face
+%%     FaceVerifyFunction-->>FaceVerify: Return face detect
+%%     FaceVerify->>FaceVerifyFunction: Feature Extraction: use model for image classification
+%%     FaceVerifyFunction-->>FaceVerify: Return image classification
+%%     FaceVerify->>FaceVerifyFunction: Comparison (Similarity score)
+%%     FaceVerifyFunction-->>FaceVerify: Return similarity result
 
 %%     FaceVerify-->>AuthService: { status: verify, similarity: score }
 %%     alt Face Match
