@@ -3,14 +3,11 @@ import { AuthResponseDto } from '../dto/auth-response.dto';
 import { AuthReqeustDto } from '../dto/auth-request.dto';
 import { PrismaService } from '@prisma/prisma.service';
 import { FileService } from 'src/file/services/file.service';
-import {
-  validateFilePicture,
-  validateRequest,
-} from 'src/shared/utils/validation.utils';
+import { validateFilePicture } from 'src/shared/utils/validation.utils';
 import { UploadFileResponseDto } from 'src/shared/dto/upload-file-response.dto';
 import { hashPassword, verifyPassword } from 'src/shared/utils/hash.utlis';
 import { generateToken } from 'src/shared/utils/jwt.utils';
-import { HttpException, UnauthorizedException } from '@nestjs/common/exceptions';
+import { HttpException } from '@nestjs/common/exceptions';
 import { ExternalService } from 'src/external/service/external.service';
 import { BaseResponseObjectDto } from 'src/shared/dto/response.dto';
 import { HttpStatus } from '@nestjs/common/enums';
@@ -24,7 +21,6 @@ export class AuthService {
   ) {}
 
   async signin(request: AuthReqeustDto): Promise<AuthResponseDto> {
-    validateRequest(request, ['username', 'password']);
     const user = await this.prismaService.user.findFirst({
       where: {
         AND: {
@@ -32,25 +28,19 @@ export class AuthService {
             equals: request.username,
           },
           isDelete: {
-            equals: false
+            equals: false,
           },
         },
       },
     });
     if (!user) {
-      throw new HttpException(
-        'Invalid username',
-        HttpStatus.UNAUTHORIZED,
-      );
+      throw new HttpException('Invalid username', HttpStatus.UNAUTHORIZED);
     }
     const isCorrectHash = await verifyPassword(user.password, request.password);
     if (!isCorrectHash) {
-      throw new HttpException(
-        'Invalid password',
-        HttpStatus.UNAUTHORIZED,
-      );
+      throw new HttpException('Invalid password', HttpStatus.UNAUTHORIZED);
     }
-    
+
     const token = await generateToken({
       userId: user.id,
       username: user.username,
@@ -65,7 +55,6 @@ export class AuthService {
     request: AuthReqeustDto,
     file: Express.Multer.File,
   ): Promise<AuthResponseDto> {
-    validateRequest(request, ['username', 'password']);
     validateFilePicture(file);
 
     return await this.prismaService.$transaction(async (prisma) => {

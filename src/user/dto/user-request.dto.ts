@@ -1,9 +1,14 @@
-import { IsBoolean, IsNotEmpty, IsString } from "@nestjs/class-validator";
+import { IsBoolean, IsEmail, IsOptional } from "@nestjs/class-validator";
+import { ApiPropertyOptional } from "@nestjs/swagger";
 
 export class UserRequestDto {
-  @IsString()
-  username: string;
-  
-  @IsBoolean()
-  isDelete: boolean;
+  @ApiPropertyOptional({ description: 'Username' })
+  @IsOptional()
+  @IsEmail({}, { message: 'Invalid email format' })
+  username?: string;
+
+  @ApiPropertyOptional({ description: 'Soft delete user' })
+  @IsOptional()
+  @IsBoolean({ message: 'isDelete must be a boolean value' })
+  isDelete?: boolean;
 }

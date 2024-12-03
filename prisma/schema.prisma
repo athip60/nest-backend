@@ -74,6 +74,7 @@ model ErrorLog {
   id           Int      @id @default(autoincrement())
   timestamp    DateTime
   errorMessage String   @map("error_message")
+  exacMessage String   @map("exac_message")
   stackTrace   String?  @map("stack_trace") @db.Text
   errorCode    String?  @map("error_code") @db.VarChar(50)
   userId       Int?     @map("user_id")

@@ -4,6 +4,39 @@
 %%     participant Client
 %%     participant Controller as NestJS Controller
 %%     participant AuthService
+%%     participant HashUtility
+%%     participant FileService
+%%     participant MinIOService as Minio
+%%     participant PrismaService as Prisma
+%%     participant ExceptionFilter as HttpExceptionFilter
+
+%%     Client->>Controller: HTTP POST /signup
+%%     Controller->>AuthService: signup(request, file)
+%%     alt Validation Request Fails
+%%         ExceptionFilter-->>Client: HTTP 400 BAD REQUEST
+%%     end
+%%     AuthService->>PrismaService: **Begin Transaction**
+%%     AuthService->>HashUtility: hashPassword(password)
+%%     AuthService->>PrismaService: user.create({ username, password })
+%%     AuthService->>FileService: uploadPicture(file)
+%%     FileService->>MinIOService: upload(file)
+%%     MinIOService-->>FileService: File Uploaded
+%%     FileService->>PrismaService: pictures.create({ path, key, type })
+%%     AuthService->>PrismaService: userPictures.create({ userId, pictureId })
+%%     AuthService->>PrismaService: **Commit Transaction**
+%%     AuthService-->>Controller: { message: "Register successful" }
+%%     Controller-->>Client: HTTP 200 OK (Register successful)
+%%     alt Error Occurs
+%%         Controller->>ExceptionFilter: Exception Thrown
+%%         ExceptionFilter->>PrismaService: errorLog.create({ error details })
+%%         ExceptionFilter-->>Client: HTTP 400/500 Error Response
+%%     end
+
+%% sequenceDiagram
+%%     autonumber
+%%     participant Client
+%%     participant Controller as NestJS Controller
+%%     participant AuthService
 %%     participant Validator
 %%     participant HashUtility as Hash Utility
 %%     participant FileService
@@ -59,6 +92,30 @@
 %%     participant Client
 %%     participant Controller as NestJS Controller
 %%     participant AuthService
+%%     participant PrismaService as Prisma
+%%     participant ExceptionFilter as HttpExceptionFilter
+
+%%     Client->>Controller: HTTP POST /signin (username, password)
+%%     Controller->>AuthService: signin(request)
+%%     AuthService->>PrismaService: user.findFirst by username
+%%     alt User Not Found or Password Not Match
+%%         ExceptionFilter-->>Client: HTTP 400 BAD REQUEST
+%%     end
+
+%%     AuthService -> AuthService: Verify Password & Generate Token
+%%     AuthService-->>Controller: { token, message: 'Login successful' }
+%%     Controller-->>Client: HTTP 200 OK { token, message: 'Login successful' }
+
+%%     alt Error Occurs
+%%         ExceptionFilter-->>Client: HTTP 400/500 Error Response
+%%     end
+
+
+%% sequenceDiagram
+%%     autonumber
+%%     participant Client
+%%     participant Controller as NestJS Controller
+%%     participant AuthService
 %%     participant Validator
 %%     participant HashUtility as Hash Utility
 %%     participant JwtUtility as JWT Utility
@@ -91,6 +148,36 @@
 %%     end
 
 %% ================================ api get user ================================
+%% sequenceDiagram
+%%     autonumber
+%%     participant Client
+%%     participant AuthMiddleware as Auth Middleware
+%%     participant Controller as NestJS Controller
+%%     participant UserService
+%%     participant PrismaService as Prisma
+%%     participant ExceptionFilter as HttpExceptionFilter
+
+%%     Client->>AuthMiddleware: HTTP Request with Authorization Header
+%%     AuthMiddleware->>AuthMiddleware: Validate Token
+%%     alt Token Invalid or No Authorization Header
+%%         ExceptionFilter-->>Client: HTTP 401 UNAUTHORIZED
+%%     end
+
+%%     AuthMiddleware->>Controller: HTTP GET /user/me
+%%     Controller->>UserService: getUserById()
+%%     UserService->>PrismaService: user.findFirst by userId include picture
+%%     alt User Not Found
+%%         ExceptionFilter-->>Client: HTTP 404 NOT FOUND
+%%     end
+%%     UserService->UserService: Fetch User and Picture Signed URL
+%%     UserService-->>Controller: return User Detail
+%%     Controller-->>Client: HTTP 200 OK (return User Detail)
+
+%%     alt Error Occurs
+%%         ExceptionFilter-->>Client: HTTP 400/500 Error Response
+%%     end
+
+
 sequenceDiagram
 %%     autonumber
 %%     participant Client
@@ -134,6 +221,47 @@ sequenceDiagram
 %%     end
 
 %% ================================ api update user ================================
+%% sequenceDiagram
+%%     autonumber
+%%     participant Client
+%%     participant AuthMiddleware as Auth Middleware
+%%     participant Controller as NestJS Controller
+%%     participant UserService
+%%     participant FileService
+%%     participant Minio
+%%     participant PrismaService as Prisma
+%%     participant ExceptionFilter as HttpExceptionFilter
+
+%%     Client->>AuthMiddleware: HTTP Request with Authorization Header
+%%     AuthMiddleware->>AuthMiddleware: Validate Authorization Header and Token
+%%     alt Invalid Token or No Authorization Header
+%%         ExceptionFilter-->>Client: HTTP 401 UNAUTHORIZED
+%%     end
+
+%%     AuthMiddleware->>Controller: HTTP PATCH /user/me (username, password, file)
+%%     Controller->>UserService: updateUser(request)
+%%     UserService->>PrismaService: user.findFirst by userId
+%%     alt User Not Found
+%%         ExceptionFilter-->>Client: HTTP 404 NOT FOUND
+%%     end
+%%     UserService->>PrismaService: **Begin Transaction**
+%%     UserService->>PrismaService: Check Duplicate Username
+%%     alt Duplicate Username
+%%         ExceptionFilter-->>Client: HTTP 400 BAD REQUEST
+%%     end
+%%     UserService->>FileService: Handle Picture Upload
+%%     FileService->>Minio: Validate and Upload Picture
+%%     FileService-->>UserService: Picture Details
+%%     UserService->>PrismaService: Update User with Picture Log
+%%     UserService->>PrismaService: **Commit Transaction**
+%%     UserService-->>Controller: { message: "Update user successful" }
+%%     Controller-->>Client: HTTP 200 OK (Update user successful)
+
+%%     alt Error Occurs
+%%         ExceptionFilter-->>Client: HTTP 400/500 Error Response
+%%     end
+
+
 %% sequenceDiagram
 %%     autonumber
 %%     participant Client
@@ -202,6 +330,37 @@ sequenceDiagram
 %%     participant AuthMiddleware as Auth Middleware
 %%     participant Controller as NestJS Controller
 %%     participant UserService
+%%     participant PrismaService as Prisma
+%%     participant ExceptionFilter as HttpExceptionFilter
+
+%%     Client->>AuthMiddleware: HTTP Request with Authorization Header
+%%     AuthMiddleware->>AuthMiddleware: Validate Authorization Header and Token
+%%     alt Invalid Token or No Authorization Header
+%%         ExceptionFilter-->>Client: HTTP 401 UNAUTHORIZED
+%%     end
+
+%%     AuthMiddleware->>Controller: HTTP DELETE /user/me
+%%     Controller->>UserService: hardDeleteUser()
+%%     UserService->>PrismaService: **Begin Transaction**
+%%     UserService->>PrismaService: Delete user and associated records
+%%     UserService->>PrismaService: **Commit Transaction**
+%%     alt User Not Found
+%%         ExceptionFilter-->>Client: HTTP 404 NOT FOUND
+%%     end
+%%     UserService-->>Controller: { message: "Delete user successful." }
+%%     Controller-->>Client: HTTP 200 OK (Delete user successful.)
+
+%%     alt Error Occurs
+%%         ExceptionFilter-->>Client: HTTP 400/500 Error Response
+%%     end
+
+
+%% sequenceDiagram
+%%     autonumber
+%%     participant Client
+%%     participant AuthMiddleware as Auth Middleware
+%%     participant Controller as NestJS Controller
+%%     participant UserService
 %%     participant Minio
 %%     participant PrismaService as Prisma
 %%     participant ExceptionFilter as HttpExceptionFilter
@@ -241,6 +400,50 @@ sequenceDiagram
 %%     end
 
 %% ================================ api face verify ================================
+%% sequenceDiagram
+%%     autonumber
+%%     participant Client
+%%     participant AuthMiddleware as Auth Middleware
+%%     participant Controller as NestJS Controller
+%%     participant AuthService
+%%     participant PrismaService as Prisma
+%%     participant ExceptionFilter as HttpExceptionFilter
+%%     participant FaceVerify as Face Verify External Service
+%%     participant FaceVerifyFunction as Face Verify Function
+
+%%     Client->>AuthMiddleware: HTTP Request with Authorization Header
+%%     AuthMiddleware->>AuthMiddleware: Validate Authorization Header and Token
+%%     alt Invalid Token or No Authorization Header
+%%         ExceptionFilter-->>Client: HTTP 401 UNAUTHORIZED
+%%     end
+
+%%     AuthMiddleware->>Controller: HTTP POST /face-verify (files)
+%%     Controller->>AuthService: verifyFace(files)
+%%     alt Missing or Invalid Request Files
+%%         ExceptionFilter-->>Client: HTTP 400 BAD REQUEST
+%%     end
+
+%%     AuthService->>FaceVerify: POST: api/face-verify/ (file)
+%%     FaceVerify->>FaceVerifyFunction: Preprocessing (Rescale, Grayscale)
+%%     FaceVerifyFunction-->>FaceVerify: Return Preprocessed Image
+%%     FaceVerify->>FaceVerifyFunction: Face Detection (OpenCV)
+%%     FaceVerifyFunction-->>FaceVerify: Face Detected
+%%     FaceVerify->>FaceVerifyFunction: Feature Extraction (DeepFace)
+%%     FaceVerifyFunction-->>FaceVerify: Extracted Features
+%%     FaceVerify->>FaceVerifyFunction: Comparison (Similarity Score)
+%%     FaceVerifyFunction-->>FaceVerify: Similarity Result
+
+%%     FaceVerify-->>AuthService: { status: verify, similarity: score }
+%%     alt Face Match
+%%         AuthService-->>Controller: HTTP 200 OK { success: true, message: 'Face authentication successful.' }
+%%     else Face Not Match
+%%         AuthService-->>Controller: HTTP 200 OK { success: false, message: 'Face authentication failed.' }
+%%     end
+%%     Controller-->>Client: HTTP 200 OK
+%%     alt Error Occurs
+%%         ExceptionFilter-->>Client: HTTP 400/500 Error Response
+%%     end
+
 %% sequenceDiagram
 %%     autonumber
 %%     participant Client

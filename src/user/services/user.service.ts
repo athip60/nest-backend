@@ -7,7 +7,6 @@ import { MinioService } from 'src/shared/minio/services/minio.service';
 import { convertPathFile } from 'src/shared/utils/minio.utils';
 import { HttpException } from '@nestjs/common/exceptions';
 import { HttpStatus } from '@nestjs/common/enums';
-import { validateRequestUpdateUser } from 'src/shared/utils/validation.utils';
 import { BaseResponseObjectDto } from 'src/shared/dto/response.dto';
 
 @Injectable()
@@ -74,7 +73,6 @@ export class UserService {
     pictureProfile: Express.Multer.File,
   ): Promise<BaseResponseObjectDto> {
     const userId = req['user']['userId'];
-    validateRequestUpdateUser(request, pictureProfile);
 
     const existingUser = await this.prismaService.user.findUnique({
       where: { id: userId },

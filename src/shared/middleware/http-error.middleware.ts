@@ -19,8 +19,9 @@ export class HttpExceptionFilter implements ExceptionFilter {
       : HttpStatus.INTERNAL_SERVER_ERROR;
     const message = exception instanceof HttpException
       ? exception.getResponse()
-      : exception.message || 'ระบบขัดข้อง';
-
+      : 'ระบบขัดข้อง';
+    const exacMessage = exception.message;
+    const userId = request['user']?.userId || null;
     try {
       await this.prisma.errorLog.create({
         data: {
@@ -32,7 +33,8 @@ export class HttpExceptionFilter implements ExceptionFilter {
           errorCode: exception instanceof HttpException
             ? exception.getStatus().toString()
             : '500',
-          userId: null,
+          userId: userId,
+          exacMessage: exacMessage,
           url: request.url,
           method: request.method
         },
